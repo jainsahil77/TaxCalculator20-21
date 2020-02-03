@@ -70,14 +70,14 @@ public class Launcher {
 		processTax(netIncome, taxApplicable, taxSlab, slabsEnum.LAC10);
 		// Slab 7.5-10 Lac
 		processTax(netIncome, taxApplicable, taxSlab, slabsEnum.LAC7_5);
-		boolean is5LacExemtionApplicable = true;
-		processTax5LacSlab(netIncome, taxApplicable, is5LacExemtionApplicable, taxSlab);
+		processTax5LacSlab(netIncome, taxApplicable, taxSlab);
 		printRow("Total Tax", DECIMAL_FORMAT.format(taxApplicable.getOldTaxAmount()),
 				DECIMAL_FORMAT.format(taxApplicable.getNewTaxAmount()));
+		System.out.println("* 4% CESS included.");
 	}
 
-	private static void processTax5LacSlab(int netIncome, TaxApplicable taxApplicable, boolean is5LacExemtionApplicable,
-			Map<slabsEnum, Slab> slabMap) {
+	private static void processTax5LacSlab(int netIncome, TaxApplicable taxApplicable, Map<slabsEnum, Slab> slabMap) {
+		boolean is5LacExemtionApplicable = true;
 		// Slab 5-7.5 Lac
 		Slab slabLac5 = slabMap.get(slabsEnum.LAC5);
 		int slabAmountLac5 = slabLac5.getSlabAmount();
@@ -93,7 +93,7 @@ public class Launcher {
 			int taxableAmtNew = taxApplicable.getTaxableIncomeNew() - slabAmountLac5;
 			float amtNew = taxableAmtNew * 0.1F;
 			taxApplicable.updateNewTaxAmount(amtNew);
-			printRow(slabLac5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac5.getOldTaxPercent() + ")",
+			printRow(slabLac5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac5.getOldTaxPercent() + "%*)",
 					DECIMAL_FORMAT.format(amtNew) + " (" + slabLac5.getNewTaxPercent() + ")");
 			taxApplicable.setTaxableIncomeNew(slabAmountLac5);
 		}
@@ -104,11 +104,11 @@ public class Launcher {
 			float amtOld = 0;
 			if (taxApplicable.getTaxableIncomeOld() > slabAmountLac2_5) {
 				int taxableAmtOld = taxApplicable.getTaxableIncomeOld() - slabAmountLac2_5;
-				amtOld = taxableAmtOld * slabLac2_5.getNewTaxPercent() / 100;
+				amtOld = taxableAmtOld * slabLac2_5.getOldTaxPercent() / 100;
 				taxApplicable.updateOldTaxAmount(amtOld);
 			}
-			printRow(slabLac2_5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac2_5.getOldTaxPercent() + ")",
-					DECIMAL_FORMAT.format(0) + " (" + slabLac2_5.getOldTaxPercent() + ")");
+			printRow(slabLac2_5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac2_5.getOldTaxPercent() + "%*)",
+					DECIMAL_FORMAT.format(0) + " (" + slabLac2_5.getOldTaxPercent() + "%*)");
 		}
 	}
 
@@ -127,8 +127,8 @@ public class Launcher {
 			int taxableAmtNew = taxApplicable.getTaxableIncomeNew() - slabAmount;
 			float amtNew = taxableAmtNew * slab.getNewTaxPercent() / 100;
 			taxApplicable.updateNewTaxAmount(amtNew);
-			printRow(slab.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slab.getOldTaxPercent() + ")",
-					DECIMAL_FORMAT.format(amtNew) + " (" + slab.getNewTaxPercent() + ")");
+			printRow(slab.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slab.getOldTaxPercent() + "%*)",
+					DECIMAL_FORMAT.format(amtNew) + " (" + slab.getNewTaxPercent() + "%*)");
 			taxApplicable.setTaxableIncomeNew(slabAmount);
 		}
 	}
