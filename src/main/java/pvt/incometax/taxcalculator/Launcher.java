@@ -1,38 +1,21 @@
 package pvt.incometax.taxcalculator;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static pvt.incometax.taxcalculator.Utility.BORDER;
+import static pvt.incometax.taxcalculator.Utility.COLUMN_LENGTH;
+import static pvt.incometax.taxcalculator.Utility.DECIMAL_FORMAT;
+import static pvt.incometax.taxcalculator.Utility.N_A;
+import static pvt.incometax.taxcalculator.Utility.PIPE_SEPERATOR;
+import static pvt.incometax.taxcalculator.Utility.STANDARD_DEDUCTION;
 
-import java.text.DecimalFormat;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * Hello world!
- *
- */
+import pvt.incometax.taxcalculator.Utility.slabsEnum;
+
 public class Launcher {
-	/**
-	 * 
-	 */
-	private static final int LAC15 = 1500000;
-	private static final int LAC12_5 = 1250000;
-	private static final int LAC10 = 1000000;
-	private static final int LAC7_5 = 750000;
-	private static final int LAC5 = 500000;
-	private static final int LAC2_5 = 250000;
-	/**
-	 * 
-	 */
-	public static final String N_A = "N/A";
-	public static final String PIPE_SEPERATOR_WITH_SPACE = " | ";
-	public static final String PIPE_SEPERATOR = "|";
-	public static final String DASH_SEPERATOR = "-";
-	public static final int STANDARD_DEDUCTION = 50000;
-	public static final int TOTAL_LENGTH = 90;
-	public static final int COLUMN_LENGTH = TOTAL_LENGTH / 3;
-	public static final String BORDER = StringUtils.leftPad(EMPTY, TOTAL_LENGTH + 4, DASH_SEPERATOR);
-	public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 
 	public static void main(String[] args) {
 		try (Scanner scannerObj = new Scanner(System.in)) {
@@ -75,108 +58,79 @@ public class Launcher {
 		printRow("Standard Deduction", String.valueOf(STANDARD_DEDUCTION), N_A);
 		printRow("Tax Savings", String.valueOf(taxSavings), String.valueOf(taxSavings));
 
-		int taxableIncomeOld = netIncome - STANDARD_DEDUCTION - taxSavings;
-		int taxableIncomeNew = netIncome;
-
-		printRow("Taxable Amount", String.valueOf(taxableIncomeOld), String.valueOf(taxableIncomeNew));
-
-		float taxApplicableOld = 0;
-		float taxApplicableNew = 0;
-
+		TaxApplicable taxApplicable = new TaxApplicable((netIncome - STANDARD_DEDUCTION - taxSavings), netIncome);
+		printRow("Taxable Amount", String.valueOf(taxApplicable.getTaxableIncomeOld()),
+				String.valueOf(taxApplicable.getTaxableIncomeNew()));
+		Map<slabsEnum, Slab> taxSlab = Utility.getTaxSlab();
 		// Slab > 15 Lac
-		if (netIncome > LAC15) {
-			float amtOld = 0;
-			if (taxableIncomeOld > LAC15) {
-				int taxableAmtOld = taxableIncomeOld - LAC15;
-				amtOld = taxableAmtOld * 0.3F;
-				taxApplicableOld += amtOld;
-				taxableIncomeOld = LAC15;
-			}
-			int taxableAmtNew = taxableIncomeNew - LAC15;
-			float amtNew = taxableAmtNew * 0.3F;
-			taxApplicableNew += amtNew;
-			printRow("Deduction (Slab:>15Lac)", DECIMAL_FORMAT.format(amtOld) + " (30%)",
-					DECIMAL_FORMAT.format(amtNew) + " (30%)");
-			taxableIncomeNew = LAC15;
-		}
+		processTax(netIncome, taxApplicable, taxSlab, slabsEnum.LAC15);
 		// Slab 12.5-15 Lac
-		if (netIncome > LAC12_5) {
-			float amtOld = 0;
-			if (taxableIncomeOld > LAC12_5) {
-				int taxableAmtOld = taxableIncomeOld - LAC12_5;
-				amtOld = taxableAmtOld * 0.3F;
-				taxApplicableOld += amtOld;
-				taxableIncomeOld = LAC12_5;
-			}
-			int taxableAmtNew = taxableIncomeNew - LAC12_5;
-			float amtNew = taxableAmtNew * 0.25F;
-			taxApplicableNew += amtNew;
-			printRow("Deduction (Slab:12.5-15Lac)", DECIMAL_FORMAT.format(amtOld) + " (30%)",
-					DECIMAL_FORMAT.format(amtNew) + " (25%)");
-			taxableIncomeNew = LAC12_5;
-		}
+		processTax(netIncome, taxApplicable, taxSlab, slabsEnum.LAC12_5);
 		// Slab 10-12.5 Lac
-		if (netIncome > LAC10) {
-			float amtOld = 0;
-			if (taxableIncomeOld > LAC10) {
-				int taxableAmtOld = taxableIncomeOld - LAC10;
-				amtOld = taxableAmtOld * 0.3F;
-				taxApplicableOld += amtOld;
-				taxableIncomeOld = LAC10;
-			}
-			int taxableAmtNew = taxableIncomeNew - LAC10;
-			float amtNew = taxableAmtNew * 0.2F;
-			taxApplicableNew += amtNew;
-			printRow("Deduction (Slab:10-12.5 Lac)", DECIMAL_FORMAT.format(amtOld) + " (30%)",
-					DECIMAL_FORMAT.format(amtNew) + " (20%)");
-			taxableIncomeNew = LAC10;
-		}
+		processTax(netIncome, taxApplicable, taxSlab, slabsEnum.LAC10);
 		// Slab 7.5-10 Lac
-		if (netIncome > LAC7_5) {
-			float amtOld = 0;
-			if (taxableIncomeOld > LAC7_5) {
-				int taxableAmtOld = taxableIncomeOld - LAC7_5;
-				amtOld = taxableAmtOld * 0.2F;
-				taxApplicableOld += amtOld;
-				taxableIncomeOld = LAC7_5;
-			}
-			int taxableAmtNew = taxableIncomeNew - LAC7_5;
-			float amtNew = taxableAmtNew * 0.15F;
-			taxApplicableNew += amtNew;
-			printRow("Deduction (Slab:7.5-10Lac)", DECIMAL_FORMAT.format(amtOld) + " (20%)",
-					DECIMAL_FORMAT.format(amtNew) + " (15%)");
-			taxableIncomeNew = LAC7_5;
-		}
+		processTax(netIncome, taxApplicable, taxSlab, slabsEnum.LAC7_5);
 		boolean is5LacExemtionApplicable = true;
+		processTax5LacSlab(netIncome, taxApplicable, is5LacExemtionApplicable, taxSlab);
+		printRow("Total Tax", DECIMAL_FORMAT.format(taxApplicable.getOldTaxAmount()),
+				DECIMAL_FORMAT.format(taxApplicable.getNewTaxAmount()));
+	}
+
+	private static void processTax5LacSlab(int netIncome, TaxApplicable taxApplicable, boolean is5LacExemtionApplicable,
+			Map<slabsEnum, Slab> slabMap) {
 		// Slab 5-7.5 Lac
-		if (netIncome > LAC5) {
+		Slab slabLac5 = slabMap.get(slabsEnum.LAC5);
+		int slabAmountLac5 = slabLac5.getSlabAmount();
+		if (netIncome > slabAmountLac5) {
 			float amtOld = 0;
-			if (taxableIncomeOld > LAC5) {
-				int taxableAmtOld = taxableIncomeOld - LAC5;
-				amtOld = taxableAmtOld * 0.2F;
-				taxApplicableOld += amtOld;
-				taxableIncomeOld = LAC5;
+			if (taxApplicable.getTaxableIncomeOld() > slabAmountLac5) {
+				int taxableAmtOld = taxApplicable.getTaxableIncomeOld() - slabAmountLac5;
+				amtOld = taxableAmtOld * slabLac5.getOldTaxPercent() / 100;
+				taxApplicable.updateOldTaxAmount(amtOld);
+				taxApplicable.setTaxableIncomeOld(slabAmountLac5);
 				is5LacExemtionApplicable = false;
 			}
-			int taxableAmtNew = taxableIncomeNew - LAC5;
+			int taxableAmtNew = taxApplicable.getTaxableIncomeNew() - slabAmountLac5;
 			float amtNew = taxableAmtNew * 0.1F;
-			taxApplicableNew += amtNew;
-			printRow("Deduction (Slab:5-7.5Lac)", DECIMAL_FORMAT.format(amtOld) + " (20%)",
-					DECIMAL_FORMAT.format(amtNew) + " (15%)");
-			taxableIncomeNew = LAC5;
+			taxApplicable.updateNewTaxAmount(amtNew);
+			printRow(slabLac5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac5.getOldTaxPercent() + ")",
+					DECIMAL_FORMAT.format(amtNew) + " (" + slabLac5.getNewTaxPercent() + ")");
+			taxApplicable.setTaxableIncomeNew(slabAmountLac5);
 		}
 		// Slab 2.5-5 Lac
-		if (netIncome > LAC2_5 && !is5LacExemtionApplicable) {
+		Slab slabLac2_5 = slabMap.get(slabsEnum.LAC2_5);
+		int slabAmountLac2_5 = slabLac2_5.getSlabAmount();
+		if (netIncome > slabAmountLac2_5 && !is5LacExemtionApplicable) {
 			float amtOld = 0;
-			if (taxableIncomeOld > LAC2_5) {
-				int taxableAmtOld = taxableIncomeOld - LAC2_5;
-				amtOld = taxableAmtOld * 0.05F;
-				taxApplicableOld += amtOld;
+			if (taxApplicable.getTaxableIncomeOld() > slabAmountLac2_5) {
+				int taxableAmtOld = taxApplicable.getTaxableIncomeOld() - slabAmountLac2_5;
+				amtOld = taxableAmtOld * slabLac2_5.getNewTaxPercent() / 100;
+				taxApplicable.updateOldTaxAmount(amtOld);
 			}
-			printRow("Deduction (Slab:2.5-5Lac)", DECIMAL_FORMAT.format(amtOld) + " (5%)",
-					DECIMAL_FORMAT.format(0) + " (0%)");
+			printRow(slabLac2_5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac2_5.getOldTaxPercent() + ")",
+					DECIMAL_FORMAT.format(0) + " (" + slabLac2_5.getOldTaxPercent() + ")");
 		}
-		printRow("Total Tax", DECIMAL_FORMAT.format(taxApplicableOld), DECIMAL_FORMAT.format(taxApplicableNew));
+	}
+
+	private static void processTax(int netIncome, TaxApplicable taxApplicable, Map<slabsEnum, Slab> slabMap,
+			slabsEnum slabEnum) {
+		Slab slab = slabMap.get(slabEnum);
+		int slabAmount = slab.getSlabAmount();
+		if (netIncome > slabAmount) {
+			float amtOld = 0;
+			if (taxApplicable.getTaxableIncomeOld() > slabAmount) {
+				int taxableAmtOld = taxApplicable.getTaxableIncomeOld() - slabAmount;
+				amtOld = taxableAmtOld * slab.getOldTaxPercent() / 100;
+				taxApplicable.updateOldTaxAmount(amtOld);
+				taxApplicable.setTaxableIncomeOld(slabAmount);
+			}
+			int taxableAmtNew = taxApplicable.getTaxableIncomeNew() - slabAmount;
+			float amtNew = taxableAmtNew * slab.getNewTaxPercent() / 100;
+			taxApplicable.updateNewTaxAmount(amtNew);
+			printRow(slab.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slab.getOldTaxPercent() + ")",
+					DECIMAL_FORMAT.format(amtNew) + " (" + slab.getNewTaxPercent() + ")");
+			taxApplicable.setTaxableIncomeNew(slabAmount);
+		}
 	}
 
 	private static void printRow(String col1, String col2, String col3) {
