@@ -38,7 +38,7 @@ public class Launcher {
 					System.out.println();
 					continue;
 				} else {
-					System.out.println("Good Bye");
+					System.out.println("Have a nice day.");
 					break;
 				}
 			} while (keepCalculating);
@@ -73,6 +73,8 @@ public class Launcher {
 		processTax5LacSlab(netIncome, taxApplicable, taxSlab);
 		printRow("Total Tax", DECIMAL_FORMAT.format(taxApplicable.getOldTaxAmount()),
 				DECIMAL_FORMAT.format(taxApplicable.getNewTaxAmount()));
+		printRow("Tax/Month", DECIMAL_FORMAT.format(taxApplicable.getOldTaxAmount() / 12),
+				DECIMAL_FORMAT.format(taxApplicable.getNewTaxAmount() / 12));
 		System.out.println("* 4% CESS included.");
 	}
 
@@ -93,8 +95,11 @@ public class Launcher {
 			int taxableAmtNew = taxApplicable.getTaxableIncomeNew() - slabAmountLac5;
 			float amtNew = taxableAmtNew * 0.1F;
 			taxApplicable.updateNewTaxAmount(amtNew);
-			printRow(slabLac5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac5.getOldTaxPercent() + "%*)",
-					DECIMAL_FORMAT.format(amtNew) + " (" + slabLac5.getNewTaxPercent() + ")");
+			printRow(slabLac5.getStrMsg(),
+					DECIMAL_FORMAT.format(amtOld) + Utility.OPEN_BRACKET + slabLac5.getOldTaxPercent()
+							+ Utility.CLOSE_BRACKET_PERCENT,
+					DECIMAL_FORMAT.format(amtNew) + Utility.OPEN_BRACKET + slabLac5.getNewTaxPercent()
+							+ Utility.CLOSE_BRACKET_PERCENT);
 			taxApplicable.setTaxableIncomeNew(slabAmountLac5);
 		}
 		// Slab 2.5-5 Lac
@@ -107,8 +112,11 @@ public class Launcher {
 				amtOld = taxableAmtOld * slabLac2_5.getOldTaxPercent() / 100;
 				taxApplicable.updateOldTaxAmount(amtOld);
 			}
-			printRow(slabLac2_5.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slabLac2_5.getOldTaxPercent() + "%*)",
-					DECIMAL_FORMAT.format(0) + " (" + slabLac2_5.getOldTaxPercent() + "%*)");
+			printRow(slabLac2_5.getStrMsg(),
+					DECIMAL_FORMAT.format(amtOld) + Utility.OPEN_BRACKET + slabLac2_5.getOldTaxPercent()
+							+ Utility.CLOSE_BRACKET_PERCENT,
+					DECIMAL_FORMAT.format(0) + Utility.OPEN_BRACKET + slabLac2_5.getOldTaxPercent()
+							+ Utility.CLOSE_BRACKET_PERCENT);
 		}
 	}
 
@@ -127,8 +135,11 @@ public class Launcher {
 			int taxableAmtNew = taxApplicable.getTaxableIncomeNew() - slabAmount;
 			float amtNew = taxableAmtNew * slab.getNewTaxPercent() / 100;
 			taxApplicable.updateNewTaxAmount(amtNew);
-			printRow(slab.getStrMsg(), DECIMAL_FORMAT.format(amtOld) + " (" + slab.getOldTaxPercent() + "%*)",
-					DECIMAL_FORMAT.format(amtNew) + " (" + slab.getNewTaxPercent() + "%*)");
+			printRow(slab.getStrMsg(),
+					DECIMAL_FORMAT.format(amtOld) + Utility.OPEN_BRACKET + slab.getOldTaxPercent()
+							+ Utility.CLOSE_BRACKET_PERCENT,
+					DECIMAL_FORMAT.format(amtNew) + Utility.OPEN_BRACKET + slab.getNewTaxPercent()
+							+ Utility.CLOSE_BRACKET_PERCENT);
 			taxApplicable.setTaxableIncomeNew(slabAmount);
 		}
 	}
