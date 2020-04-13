@@ -28,7 +28,6 @@ public class Utility {
 	public static final int LAC5 = 500000;
 	public static final int LAC2_5 = 250000;
 	public static final String N_A = "N/A";
-	public static final String PIPE_SEPERATOR_WITH_SPACE = " | ";
 	public static final String PIPE_SEPERATOR = "|";
 	public static final String DASH_SEPERATOR = "-";
 	public static final int STANDARD_DEDUCTION = 50000;
